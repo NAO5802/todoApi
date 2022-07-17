@@ -10,7 +10,7 @@ import java.util.*
 class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
 
     override fun create(task: Task): Task =
-        task.toRecord()
+        task.toInsertRecord()
             .let { driver.create(it) }
             .let {
                 Task.of(
@@ -29,8 +29,12 @@ data class TaskRecord(
     val status: String,
     val description: String?,
     val createdBy: String,
-    val createdAt: LocalDateTime
 )
 
-// TODO: Task起点でtoRecordするのと、Record起点でfromTaskするのどっちがいいんだろう
-fun Task.toRecord(): TaskRecord = TODO()
+fun Task.toInsertRecord(): TaskRecord = TaskRecord(
+    this.id.value,
+    this.name.value,
+    this.status.name,
+    this.description?.value,
+    this.createdBy.value,
+)
