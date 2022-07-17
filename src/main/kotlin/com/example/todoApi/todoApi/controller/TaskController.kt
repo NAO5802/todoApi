@@ -2,10 +2,9 @@ package com.example.todoApi.todoApi.controller
 
 import com.example.todoApi.todoApi.domain.*
 import com.example.todoApi.todoApi.usecase.TaskUseCase
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class TaskController(private val useCase: TaskUseCase) {
@@ -14,16 +13,22 @@ class TaskController(private val useCase: TaskUseCase) {
     fun getPing(): String = "pong"
 
     @PostMapping("/tasks")
-    fun postTask(@RequestBody taskRequest: TaskRequest): TaskResponse =
+    @ResponseBody
+    fun postTask(@RequestBody taskRequest: TaskRequest): ResponseEntity<TaskResponse> =
         // TODO validation
-        Task.create(
-            TaskName(taskRequest.name),
-            TaskStatus.fromString(taskRequest.status),
-            taskRequest.description?.let{ TaskDescription(it) },
-            AdminUserName(taskRequest.createdBy)
-        )
-            .let { useCase.create(it) }
-            .toResponse()
+        try {
+            Task.create(
+                TaskName(taskRequest.name),
+                TaskStatus.fromString(taskRequest.status),
+                taskRequest.description?.let{ TaskDescription(it) },
+                AdminUserName(taskRequest.createdBy)
+            )
+                .let { useCase.create(it) }
+                .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
+        } catch (e: Exception){
+            ResponseEntity(HttpStatus.BAD_REQUEST)
+        }
+
 
 }
 
@@ -43,5 +48,4 @@ class TaskResponse(
     val createdBy: String
 )
 
-// TODO: Task起点でtoResponseするのと、Response起点でfromTaskするのどっちがいいんだろう
 fun Task.toResponse(): TaskResponse = TODO()

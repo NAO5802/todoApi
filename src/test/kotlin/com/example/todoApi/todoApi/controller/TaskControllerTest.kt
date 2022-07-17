@@ -29,7 +29,7 @@ internal class TaskControllerTest(
         val request = TaskRequest("買い出し", "TODO", "豚肉200g", "花子")
         val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
 
-        assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(actual.body?.id).isInstanceOf(String::class.java)
         assertThat(actual.body?.name).isEqualTo("買い出し")
         assertThat(actual.body?.status).isEqualTo("TODO")
@@ -42,11 +42,19 @@ internal class TaskControllerTest(
         val request = TaskRequest("買い出し", "TODO", null, "花子")
         val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
 
-        assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(actual.body?.id).isInstanceOf(String::class.java)
         assertThat(actual.body?.name).isEqualTo("買い出し")
         assertThat(actual.body?.status).isEqualTo("TODO")
         assertThat(actual.body?.description).isNull()
         assertThat(actual.body?.createdBy).isEqualTo("花子")
+    }
+
+    @Test
+    fun `postTask - リクエストの値が不正な場合、400エラーを返す`() {
+        val request = TaskRequest("", "AAAAAA", null, "")
+        val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
+
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
     }
 }
