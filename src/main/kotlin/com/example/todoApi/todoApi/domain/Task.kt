@@ -30,7 +30,7 @@ enum class TaskStatus {
     TODO, INPROGRESS, DONE;
 
     companion object {
-        fun fromString(value: String): TaskStatus = TODO()
+        fun fromString(value: String): TaskStatus = valueOf(value)
     }
 }
 
