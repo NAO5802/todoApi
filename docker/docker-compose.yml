@@ -3,9 +3,10 @@ services:
   db:
     image: postgres
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
       POSTGRES_DB: todo
     volumes:
       - ./db/.data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
