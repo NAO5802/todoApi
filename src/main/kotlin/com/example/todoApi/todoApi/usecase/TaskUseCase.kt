@@ -12,5 +12,6 @@ class TaskUseCase(val repository: TaskRepository) {
     @Transactional
     fun create(task: Task): Task =
         repository.create(task)
-        .let{ taskId ->  repository.findById(taskId) }
+            ?.let { taskId -> repository.findById(taskId) }
+            ?: throw RuntimeException() // TODO 適切なエラーに置き換え
 }

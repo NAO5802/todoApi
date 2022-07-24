@@ -8,9 +8,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @SpringBootTest
+// TODO Transactionnalの範囲を調べる
+// TODO jooqのWARNINGについて調べる
 @Transactional
 internal class TaskRepositoryImplTest(
     @Autowired private val repository: TaskRepository,
@@ -25,16 +28,16 @@ internal class TaskRepositoryImplTest(
 
         // when
         val actual = repository.create(task, createAt)
-        val foundTaskRecord = driver.findById(actual.value)
+        val foundTaskRecord = driver.findById(actual!!.value)
 
         // then
         assertEquals(task.id, actual, "create()の戻り値がTaskIdであること")
-        assertEquals(task.id, foundTaskRecord.id, "create()で作成した内容がDBに存在すること")
-        assertEquals(task.name, foundTaskRecord.name, "create()で作成した内容がDBに存在すること")
-        assertEquals(task.status, foundTaskRecord.status, "create()で作成した内容がDBに存在すること")
-        assertEquals(task.description, foundTaskRecord.description, "create()で作成した内容がDBに存在すること")
-        assertEquals(task.createdBy, foundTaskRecord.createdBy, "create()で作成した内容がDBに存在すること")
-        assertEquals(createAt, foundTaskRecord.createdAt, "create()で作成した内容がDBに存在すること")
+        assertEquals(task.id.value, foundTaskRecord?.id, "create()で作成した内容がDBに存在すること")
+        assertEquals(task.name.value, foundTaskRecord?.name, "create()で作成した内容がDBに存在すること")
+        assertEquals(task.status.name, foundTaskRecord?.status?.name, "create()で作成した内容がDBに存在すること")
+        assertEquals(task.description?.value, foundTaskRecord?.description, "create()で作成した内容がDBに存在すること")
+        assertEquals(task.createdBy.value, foundTaskRecord?.createdBy, "create()で作成した内容がDBに存在すること")
+        assertEquals(Timestamp.valueOf(createAt), foundTaskRecord?.createdAt, "create()で作成した内容がDBに存在すること")
     }
 
     @Test
@@ -47,7 +50,7 @@ internal class TaskRepositoryImplTest(
         val actual = repository.findById(task.id)
 
         // then
-        assertEquals(task.id, actual.id)
-        assertEquals(task.name, actual.name)
+        assertEquals(task.id, actual?.id)
+        assertEquals(task.name, actual?.name)
     }
 }
