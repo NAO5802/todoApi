@@ -9,18 +9,13 @@ import java.util.*
 @Component
 class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
 
-    override fun create(task: Task): Task =
-        task.toInsertRecord()
+    override fun create(task: Task, createAt: LocalDateTime): TaskId =
+        task.toRecord(createAt)
             .let { driver.create(it) }
-            .let {
-                Task.of(
-                    TaskId(it.id),
-                    TaskName(it.name),
-                    TaskStatus.fromString(it.status),
-                    it.description?.let { description -> TaskDescription(description) },
-                    AdminUserName(it.createdBy)
-                )
-            }
+            .let { TaskId(it) }
+
+    override fun findById(taskId: TaskId): Task =
+        driver.findById(taskId.value).toEntity()
 }
 
 data class TaskRecord(
@@ -29,12 +24,23 @@ data class TaskRecord(
     val status: String,
     val description: String?,
     val createdBy: String,
+    val createdAt: LocalDateTime
 )
 
-fun Task.toInsertRecord(): TaskRecord = TaskRecord(
+fun Task.toRecord(createAt: LocalDateTime): TaskRecord = TaskRecord(
     this.id.value,
     this.name.value,
     this.status.name,
     this.description?.value,
     this.createdBy.value,
+    createAt
 )
+
+fun TaskRecord.toEntity(): Task =
+    Task.of(
+        TaskId(id),
+        TaskName(name),
+        TaskStatus.fromString(status),
+        description?.let { description -> TaskDescription(description) },
+        AdminUserName(createdBy)
+    )

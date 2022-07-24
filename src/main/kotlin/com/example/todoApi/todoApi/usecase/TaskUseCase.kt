@@ -10,5 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 class TaskUseCase(val repository: TaskRepository) {
 
     @Transactional
-    fun create(task: Task): Task = repository.create(task)
+    fun create(task: Task): Task =
+        repository.create(task)
+        .let{ taskId ->  repository.findById(taskId) }
 }
