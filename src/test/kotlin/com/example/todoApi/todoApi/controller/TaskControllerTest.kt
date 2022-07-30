@@ -58,4 +58,39 @@ internal class TaskControllerTest(
 
         assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
     }
+
+    @Test
+    fun `findTask - 指定したIDのタスクが返ること`() {
+        // TODO: 元々DBに初期データを用意する形式にしたい
+        // given
+        val request = TaskRequest("買い出し", "TODO", "豚肉200g", "花子")
+        val task = restTemplate.postForEntity<TaskResponse>("/tasks", request)
+        val taskId = task.body?.id
+        assertThat(taskId).isInstanceOf(String::class.java)
+
+        // when
+        val actual = restTemplate.getForEntity<TaskResponse>("/tasks/${taskId}")
+
+        // then
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(actual.body?.id).isEqualTo(taskId)
+        assertThat(actual.body?.name).isEqualTo("買い出し")
+        assertThat(actual.body?.status).isEqualTo("TODO")
+        assertThat(actual.body?.description).isEqualTo("豚肉200g")
+        assertThat(actual.body?.createdBy).isEqualTo("花子")
+    }
+
+    @Test
+    fun `findTask - 指定したIDの形式が不正の場合、400エラーを返す`() {
+        val actual = restTemplate.getForEntity<ErrorResponse>("/tasks/1234567")
+
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+    }
+
+    @Test
+    fun `findTask - 指定したIDが存在しない場合、404エラーを返す`() {
+        val actual = restTemplate.getForEntity<ErrorResponse>("/tasks/95ec62c1-ac8a-4888-bfeb-059f0d648ef6")
+
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
 }
