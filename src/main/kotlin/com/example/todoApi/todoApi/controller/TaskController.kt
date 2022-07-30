@@ -22,7 +22,7 @@ class TaskController(private val useCase: TaskUseCase) {
                 AdminUserName(taskRequest.createdBy)
             )
                 .let { useCase.create(it) }
-                .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
+                .let { ResponseEntity(it.toResponse(), HttpStatus.CREATED) }
     }
 
 // TODO 適切な場所に置く
@@ -41,4 +41,10 @@ class TaskResponse(
     val createdBy: String
 )
 
-fun Task.toResponse(): TaskResponse = TODO()
+fun Task.toResponse(): TaskResponse = TaskResponse(
+    id.value.toString(),
+    name.value,
+    status.name,
+    description?.value,
+    createdBy.value
+)
