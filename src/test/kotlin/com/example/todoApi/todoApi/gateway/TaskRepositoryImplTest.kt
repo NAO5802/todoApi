@@ -1,15 +1,18 @@
 package com.example.todoApi.todoApi.gateway
 
 import com.example.todoApi.todoApi.TaskTestFactory
+import com.example.todoApi.todoApi.domain.TaskId
 import com.example.todoApi.todoApi.domain.TaskRepository
 import com.example.todoApi.todoApi.driver.TaskDbDriver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.*
 
 @SpringBootTest
 // TODO Transactionnalの範囲を調べる
@@ -28,7 +31,7 @@ internal class TaskRepositoryImplTest(
 
         // when
         val actual = repository.create(task, createAt)
-        val foundTaskRecord = driver.findById(actual!!.value)
+        val foundTaskRecord = driver.findById(actual.value)
 
         // then
         assertEquals(task.id, actual, "create()の戻り値がTaskIdであること")
@@ -50,7 +53,19 @@ internal class TaskRepositoryImplTest(
         val actual = repository.findById(task.id)
 
         // then
-        assertEquals(task.id, actual?.id)
-        assertEquals(task.name, actual?.name)
+        assertEquals(task.id, actual.id)
+        assertEquals(task.name, actual.name)
+    }
+
+    @Test
+    fun `findById - 該当するtaskがない場合はEntityNotFoundErrorをthrowする`() {
+        // given
+        val notExistTaskId = TaskId(UUID.fromString("95ec62c1-ac8a-4888-bfeb-059f0d648ef6"))
+
+        // when
+        val actual: () -> Unit = { repository.findById(notExistTaskId) }
+
+        // then
+        assertThrows<EntityNotFoundException>(actual)
     }
 }

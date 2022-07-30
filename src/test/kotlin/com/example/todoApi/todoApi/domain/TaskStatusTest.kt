@@ -12,8 +12,8 @@ internal class TaskStatusTest {
     }
 
     @Test
-    fun `不正な文字列の場合、IllegalArgumentExceptionをthrowする`() {
+    fun `不正な文字列の場合、DomainExceptionをthrowする`() {
         val actual: () -> Unit = { TaskStatus.fromString("AAAAAAAA") }
-        assertThrows<IllegalArgumentException>(actual)
+        assertThrows<DomainException>(actual)
     }
 }

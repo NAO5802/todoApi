@@ -23,9 +23,7 @@ class TaskController(private val useCase: TaskUseCase) {
             )
                 .let { useCase.create(it) }
                 .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
-
-
-}
+    }
 
 // TODO 適切な場所に置く
 data class TaskRequest(

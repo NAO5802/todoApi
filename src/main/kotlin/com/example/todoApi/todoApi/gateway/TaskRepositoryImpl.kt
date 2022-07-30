@@ -11,13 +11,16 @@ import java.util.*
 @Component
 class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
 
-    override fun create(task: Task, createAt: LocalDateTime): TaskId? =
+    override fun create(task: Task, createAt: LocalDateTime): TaskId =
         task.toRecord(createAt)
             .let { driver.create(it) }
             ?.let { taskId -> TaskId(taskId) }
+            ?: throw RuntimeException("failed to create new task: $task")
 
-    override fun findById(taskId: TaskId): Task? =
-        driver.findById(taskId.value)?.toEntity()
+    override fun findById(taskId: TaskId): Task =
+        driver.findById(taskId.value)
+            ?.toEntity()
+            ?: throw EntityNotFoundException("task could not found: $taskId")
 }
 
 data class TaskRecord(
