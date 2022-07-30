@@ -1,5 +1,8 @@
 package com.example.todoApi.todoApi.controller
 
+import com.example.todoApi.todoApi.controller.task.TaskRequest
+import com.example.todoApi.todoApi.controller.task.TaskResponse
+import com.example.todoApi.todoApi.controller.task.toResponse
 import com.example.todoApi.todoApi.domain.*
 import com.example.todoApi.todoApi.usecase.TaskUseCase
 import org.springframework.http.HttpStatus
@@ -24,27 +27,3 @@ class TaskController(private val useCase: TaskUseCase) {
                 .let { useCase.create(it) }
                 .let { ResponseEntity(it.toResponse(), HttpStatus.CREATED) }
     }
-
-// TODO 適切な場所に置く
-data class TaskRequest(
-    val name: String,
-    val status: String,
-    val description: String?,
-    val createdBy: String
-)
-
-class TaskResponse(
-    val id: String,
-    val name: String,
-    val status: String,
-    val description: String?,
-    val createdBy: String
-)
-
-fun Task.toResponse(): TaskResponse = TaskResponse(
-    id.value.toString(),
-    name.value,
-    status.name,
-    description?.value,
-    createdBy.value
-)
