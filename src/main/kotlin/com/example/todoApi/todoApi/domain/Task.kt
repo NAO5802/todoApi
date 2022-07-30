@@ -27,6 +27,12 @@ data class Task private constructor(
 data class TaskId(val value: UUID) {
     companion object {
         fun new(): TaskId = TaskId(UUID.randomUUID())
+        fun fromString(value: String): TaskId =
+            try {
+                TaskId(UUID.fromString(value))
+            } catch (e: Exception) {
+                throw DomainException(e.message)
+            }
     }
 }
 

@@ -29,8 +29,8 @@ class TaskController(private val useCase: TaskUseCase) {
 
     @GetMapping("/tasks/{id}")
     fun findTask(@PathVariable id: String): ResponseEntity<TaskResponse> {
-        val uuid: UUID = TODO()
-            useCase.find(TaskId(uuid))
+        val taskId = TaskId.fromString(id)
+            useCase.find(taskId)
                 .let { return ResponseEntity(it.toResponse(), HttpStatus.OK) }
     }
 
