@@ -15,9 +15,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @SpringBootTest
-// TODO Transactionnalの範囲を調べる
-// TODO jooqのWARNINGについて調べる
-@Transactional
+@Transactional // 各メソッドの最後にトランザクションがロールバックされる
 internal class TaskRepositoryImplTest(
     @Autowired private val repository: TaskRepository,
     @Autowired private val driver: TaskDbDriver

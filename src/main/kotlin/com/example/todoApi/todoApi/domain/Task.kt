@@ -1,7 +1,6 @@
 package com.example.todoApi.todoApi.domain
 
 import java.util.*
-import kotlin.jvm.Throws
 
 data class Task private constructor(
     val id: TaskId,

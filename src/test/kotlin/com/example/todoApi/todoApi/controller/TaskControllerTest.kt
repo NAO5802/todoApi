@@ -1,5 +1,7 @@
 package com.example.todoApi.todoApi.controller
 
+import com.example.todoApi.todoApi.controller.task.TaskRequest
+import com.example.todoApi.todoApi.controller.task.TaskResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

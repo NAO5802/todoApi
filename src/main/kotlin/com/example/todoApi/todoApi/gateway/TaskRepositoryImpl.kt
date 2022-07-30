@@ -4,11 +4,12 @@ import com.example.todoApi.todoApi.domain.*
 import com.example.todoApi.todoApi.driver.TaskDbDriver
 import com.example.todoApi.todoApi.driver.gen.enums.Status
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 
-@Component
+@Repository
 class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
 
     override fun create(task: Task, createAt: LocalDateTime): TaskId =
