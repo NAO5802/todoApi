@@ -33,11 +33,11 @@ data class TaskRecord(
 )
 
 fun Task.toRecord(createAt: LocalDateTime): TaskRecord = TaskRecord(
-    this.id.value,
-    this.name.value,
-    adaptToRecordStatus(this.status),
-    this.description?.value,
-    this.createdBy.value,
+    id.value,
+    name.value,
+    adaptToRecordStatus(status),
+    description?.value,
+    createdBy.value,
     Timestamp.valueOf(createAt)
 )
 
