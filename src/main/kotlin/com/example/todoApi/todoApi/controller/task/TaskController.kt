@@ -28,10 +28,10 @@ class TaskController(private val useCase: TaskUseCase) {
             .let { ResponseEntity(it.toResponse(), HttpStatus.CREATED) }
 
     @GetMapping("/tasks/{id}")
-    fun findTask(@PathVariable id: String): ResponseEntity<TaskResponse> {
-        val taskId = TaskId.fromString(id)
-            useCase.find(taskId)
-                .let { return ResponseEntity(it.toResponse(), HttpStatus.OK) }
-    }
+    fun findTask(@PathVariable id: String): ResponseEntity<TaskResponse> =
+        TaskId.fromString(id)
+            .let { useCase.find(it) }
+            .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
+
 
 }
