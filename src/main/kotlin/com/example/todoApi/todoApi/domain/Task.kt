@@ -1,6 +1,7 @@
 package com.example.todoApi.todoApi.domain
 
 import java.util.*
+import kotlin.jvm.Throws
 
 data class Task private constructor(
     val id: TaskId,
@@ -8,9 +9,15 @@ data class Task private constructor(
     val status: TaskStatus,
     val description: TaskDescription?,
     val createdBy: AdminUserName
-        ){
+) {
     companion object {
-        fun of(id: TaskId, name: TaskName, status: TaskStatus, description: TaskDescription?, createdBy: AdminUserName): Task =
+        fun of(
+            id: TaskId,
+            name: TaskName,
+            status: TaskStatus,
+            description: TaskDescription?,
+            createdBy: AdminUserName
+        ): Task =
             Task(id, name, status, description, createdBy)
 
         fun create(name: TaskName, status: TaskStatus, description: TaskDescription?, createdBy: AdminUserName): Task =
@@ -30,7 +37,13 @@ enum class TaskStatus {
     TODO, INPROGRESS, DONE;
 
     companion object {
-        fun fromString(value: String): TaskStatus = valueOf(value)
+
+        fun fromString(value: String): TaskStatus =
+            try {
+                valueOf(value)
+            } catch (e: Exception) {
+                throw DomainException(e.message)
+            }
     }
 }
 

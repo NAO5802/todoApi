@@ -15,8 +15,6 @@ class TaskController(private val useCase: TaskUseCase) {
     @PostMapping("/tasks")
     @ResponseBody
     fun postTask(@RequestBody taskRequest: TaskRequest): ResponseEntity<TaskResponse> =
-        // TODO validation
-        try {
             Task.create(
                 TaskName(taskRequest.name),
                 TaskStatus.fromString(taskRequest.status),
@@ -25,9 +23,6 @@ class TaskController(private val useCase: TaskUseCase) {
             )
                 .let { useCase.create(it) }
                 .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
-        } catch (e: Exception){
-            ResponseEntity(HttpStatus.BAD_REQUEST)
-        }
 
 
 }

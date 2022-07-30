@@ -9,7 +9,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpStatus
-import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class TaskControllerTest(
@@ -53,7 +52,7 @@ internal class TaskControllerTest(
     @Test
     fun `postTask - リクエストの値が不正な場合、400エラーを返す`() {
         val request = TaskRequest("", "AAAAAA", null, "")
-        val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
+        val actual = restTemplate.postForEntity<ErrorResponse>("/tasks", request)
 
         assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
     }
