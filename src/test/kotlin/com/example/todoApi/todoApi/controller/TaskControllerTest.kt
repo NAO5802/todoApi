@@ -6,12 +6,13 @@ import com.example.todoApi.todoApi.controller.task.TaskRequest
 import com.example.todoApi.todoApi.controller.task.TaskResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.client.postForEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -89,6 +90,32 @@ internal class TaskControllerTest(
     @Test
     fun `findTask - 指定したIDが存在しない場合、404エラーを返す`() {
         val actual = restTemplate.getForEntity<ErrorResponse>("/tasks/95ec62c1-ac8a-4888-bfeb-059f0d648ef6")
+
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun `deleteTask - 指定したIDのタスクが削除できること`() {
+        // given
+        val taskId = taskTestDataCreator.create(TaskTestFactory.create())
+
+        // when
+        val actual = restTemplate.exchange<HttpStatus>("/tasks/${taskId.value}", HttpMethod.DELETE)
+
+        // then
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    }
+
+    @Test
+    fun `deleteTask - 指定したIDの形式が不正の場合、400エラーを返す`() {
+        val actual = restTemplate.exchange<Unit>("/tasks/1234567", HttpMethod.DELETE)
+
+        assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+    }
+
+    @Test
+    fun `deleteTask - 指定したIDが存在しない場合、404エラーを返す`() {
+        val actual = restTemplate.exchange<Unit>("/tasks/95ec62c1-ac8a-4888-bfeb-059f0d648ef6", HttpMethod.DELETE)
 
         assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
     }

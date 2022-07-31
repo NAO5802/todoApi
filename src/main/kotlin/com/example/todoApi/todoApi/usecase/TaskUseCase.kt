@@ -11,9 +11,14 @@ class TaskUseCase(val repository: TaskRepository) {
 
     @Transactional
     fun create(task: Task): Task =
-            repository.create(task)
-                .let{ taskId -> repository.findById(taskId) }
+        repository.create(task)
+            .let { taskId -> repository.findById(taskId) }
 
     fun find(taskId: TaskId): Task = repository.findById(taskId)
+
+    @Transactional
+    fun delete(taskId: TaskId): TaskId =
+        repository.findById(taskId)
+            .let { task -> repository.delete(task.id) }
 
 }

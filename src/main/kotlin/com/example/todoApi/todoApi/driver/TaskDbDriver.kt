@@ -32,6 +32,13 @@ class TaskDbDriver(private val dsl: DSLContext = DSL.using(DatabaseConfig().getC
             .fetchOne()
             ?.toTaskRecord()
 
+    fun delete(taskId: UUID): UUID? =
+        dsl.deleteFrom(TASKS)
+            .where(TASKS.TASK_ID.eq(taskId))
+            .returningResult(TASKS.TASK_ID)
+            .fetchOne()
+            ?.getValue(TASKS.TASK_ID)
+
 }
 
 // jooqの自動生成レコードをTaskRecordに変換する

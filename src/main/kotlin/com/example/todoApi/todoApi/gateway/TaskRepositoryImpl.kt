@@ -22,6 +22,11 @@ class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
         driver.findById(taskId.value)
             ?.toEntity()
             ?: throw EntityNotFoundException("task could not found: $taskId")
+
+    override fun delete(taskId: TaskId): TaskId =
+        driver.delete(taskId.value)
+            ?.let { taskId -> TaskId(taskId) }
+            ?: throw RuntimeException("failed to delete task: $taskId")
 }
 
 data class TaskRecord(

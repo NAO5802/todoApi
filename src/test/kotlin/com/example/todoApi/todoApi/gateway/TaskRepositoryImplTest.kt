@@ -69,4 +69,21 @@ internal class TaskRepositoryImplTest(
         // then
         assertThrows<EntityNotFoundException>(actual)
     }
+
+    @Test
+    fun `delete - タスクIDに該当するデータをDBから削除し、TaskIdを返す`(){
+        // given
+        val taskId = taskTestDataCreator.create(TaskTestFactory.create())
+
+        // when
+        val actual = repository.delete(taskId)
+
+        // then
+        val foundTaskRecord = driver.findById(taskId.value)
+
+        assertEquals(taskId, actual, "削除したTaskIdが返ること")
+        assertEquals(null, foundTaskRecord, "削除したtaskがDBに存在しないこと")
+
+    }
+
 }

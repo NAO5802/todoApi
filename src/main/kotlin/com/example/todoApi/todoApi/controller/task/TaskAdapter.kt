@@ -9,7 +9,7 @@ data class TaskRequest(
     val createdBy: String
 )
 
-class TaskResponse(
+data class TaskResponse(
     val id: String,
     val name: String,
     val status: String,

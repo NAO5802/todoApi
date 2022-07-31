@@ -8,7 +8,6 @@ import com.example.todoApi.todoApi.usecase.TaskUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 class TaskController(private val useCase: TaskUseCase) {
@@ -33,5 +32,10 @@ class TaskController(private val useCase: TaskUseCase) {
             .let { useCase.find(it) }
             .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
 
+    @DeleteMapping("/tasks/{id}")
+    fun deleteTask(@PathVariable id: String): ResponseEntity<Unit> =
+        TaskId.fromString(id)
+            .let{ useCase.delete(it) }
+            .let { ResponseEntity(HttpStatus.NO_CONTENT) }
 
 }
