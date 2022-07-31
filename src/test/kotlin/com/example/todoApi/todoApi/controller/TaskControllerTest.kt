@@ -1,5 +1,7 @@
 package com.example.todoApi.todoApi.controller
 
+import com.example.todoApi.todoApi.TaskTestDataCreator
+import com.example.todoApi.todoApi.TaskTestFactory
 import com.example.todoApi.todoApi.controller.task.TaskRequest
 import com.example.todoApi.todoApi.controller.task.TaskResponse
 import org.assertj.core.api.Assertions.assertThat
@@ -14,7 +16,8 @@ import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class TaskControllerTest(
-    @Autowired val restTemplate: TestRestTemplate
+    @Autowired val restTemplate: TestRestTemplate,
+    @Autowired val taskTestDataCreator: TaskTestDataCreator
     ) {
 
     @Test
@@ -61,23 +64,19 @@ internal class TaskControllerTest(
 
     @Test
     fun `findTask - 指定したIDのタスクが返ること`() {
-        // TODO: 元々DBに初期データを用意する形式にしたい
         // given
-        val request = TaskRequest("買い出し", "TODO", "豚肉200g", "花子")
-        val task = restTemplate.postForEntity<TaskResponse>("/tasks", request)
-        val taskId = task.body?.id
-        assertThat(taskId).isInstanceOf(String::class.java)
+        val taskId = taskTestDataCreator.create(TaskTestFactory.create())
 
         // when
-        val actual = restTemplate.getForEntity<TaskResponse>("/tasks/${taskId}")
+        val actual = restTemplate.getForEntity<TaskResponse>("/tasks/${taskId.value}")
 
         // then
         assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(actual.body?.id).isEqualTo(taskId)
-        assertThat(actual.body?.name).isEqualTo("買い出し")
+        assertThat(actual.body?.id).isEqualTo(taskId.value.toString())
+        assertThat(actual.body?.name).isEqualTo("買い物")
         assertThat(actual.body?.status).isEqualTo("TODO")
-        assertThat(actual.body?.description).isEqualTo("豚肉200g")
-        assertThat(actual.body?.createdBy).isEqualTo("花子")
+        assertThat(actual.body?.description).isEqualTo("ひき肉を買う")
+        assertThat(actual.body?.createdBy).isEqualTo("TODO太郎")
     }
 
     @Test

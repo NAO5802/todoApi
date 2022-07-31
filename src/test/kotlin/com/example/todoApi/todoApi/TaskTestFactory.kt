@@ -1,6 +1,9 @@
 package com.example.todoApi.todoApi
 
 import com.example.todoApi.todoApi.domain.*
+import org.springframework.stereotype.Component
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
 object TaskTestFactory {
     fun create(
@@ -11,4 +14,9 @@ object TaskTestFactory {
         createdBy: AdminUserName = AdminUserName("TODO太郎")
     ): Task =
         Task.of(id, name, status, description, createdBy)
+}
+
+@Component
+class TaskTestDataCreator(private val repository: TaskRepository) {
+    fun create(task: Task, createAt: LocalDateTime = LocalDateTime.now()): TaskId = repository.create(task, createAt)
 }

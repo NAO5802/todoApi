@@ -1,7 +1,9 @@
 package com.example.todoApi.todoApi.gateway
 
+import com.example.todoApi.todoApi.TaskTestDataCreator
 import com.example.todoApi.todoApi.TaskTestFactory
 import com.example.todoApi.todoApi.domain.TaskId
+import com.example.todoApi.todoApi.domain.TaskName
 import com.example.todoApi.todoApi.domain.TaskRepository
 import com.example.todoApi.todoApi.driver.TaskDbDriver
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,7 +20,8 @@ import java.util.*
 @Transactional // 各メソッドの最後にトランザクションがロールバックされる
 internal class TaskRepositoryImplTest(
     @Autowired private val repository: TaskRepository,
-    @Autowired private val driver: TaskDbDriver
+    @Autowired private val driver: TaskDbDriver,
+    @Autowired private val taskTestDataCreator: TaskTestDataCreator
 ) {
 
     @Test
@@ -29,9 +32,10 @@ internal class TaskRepositoryImplTest(
 
         // when
         val actual = repository.create(task, createAt)
-        val foundTaskRecord = driver.findById(actual.value)
 
         // then
+        val foundTaskRecord = driver.findById(actual.value)
+
         assertEquals(task.id, actual, "create()の戻り値がTaskIdであること")
         assertEquals(task.id.value, foundTaskRecord?.id, "create()で作成した内容がDBに存在すること")
         assertEquals(task.name.value, foundTaskRecord?.name, "create()で作成した内容がDBに存在すること")
@@ -44,15 +48,14 @@ internal class TaskRepositoryImplTest(
     @Test
     fun `findById - タスクIDに該当するTaskエンティティを返す`() {
         // given
-        val task = TaskTestFactory.create()
-        repository.create(task)
+        val taskId = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("財布を持ってくる")))
 
         // when
-        val actual = repository.findById(task.id)
+        val actual = repository.findById(taskId)
 
         // then
-        assertEquals(task.id, actual.id)
-        assertEquals(task.name, actual.name)
+        assertEquals(taskId, actual.id)
+        assertEquals(TaskName("財布を持ってくる"), actual.name)
     }
 
     @Test
