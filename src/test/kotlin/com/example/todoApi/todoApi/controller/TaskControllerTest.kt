@@ -132,4 +132,13 @@ internal class TaskControllerTest(
             assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
     }
+
+    @Nested
+    inner class FindAllTasks(){
+        @Test
+        fun `全てのtaskが作成時間降順で取得できる`(){}
+
+        @Test
+        fun `taskが1件もない場合、空の配列が返る`(){}
+    }
 }
