@@ -24,6 +24,9 @@ data class Task private constructor(
     }
 }
 
+// TODO: FCC
+data class Tasks(val list: List<Task>)
+
 data class TaskId(val value: UUID) {
     companion object {
         fun new(): TaskId = TaskId(UUID.randomUUID())
@@ -54,3 +57,7 @@ enum class TaskStatus {
 
 data class TaskDescription(val value: String)
 data class AdminUserName(val value: String)
+
+enum class TaskOrderKey{
+    CREATED_AT
+}

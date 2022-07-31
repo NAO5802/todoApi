@@ -1,6 +1,7 @@
 package com.example.todoApi.todoApi.controller.task
 
 import com.example.todoApi.todoApi.domain.Task
+import com.example.todoApi.todoApi.domain.Tasks
 
 data class TaskRequest(
     val name: String,
@@ -17,6 +18,9 @@ data class TaskResponse(
     val createdBy: String
 )
 
+// TODO: FCCのinterface作る
+data class TaskResponses(val list: List<TaskResponse>)
+
 fun Task.toResponse(): TaskResponse = TaskResponse(
     id.value.toString(),
     name.value,
@@ -24,3 +28,5 @@ fun Task.toResponse(): TaskResponse = TaskResponse(
     description?.value,
     createdBy.value
 )
+
+fun Tasks.toResponse(): TaskResponses = TODO()

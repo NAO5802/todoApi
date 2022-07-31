@@ -2,6 +2,7 @@ package com.example.todoApi.todoApi.controller
 
 import com.example.todoApi.todoApi.controller.task.TaskRequest
 import com.example.todoApi.todoApi.controller.task.TaskResponse
+import com.example.todoApi.todoApi.controller.task.TaskResponses
 import com.example.todoApi.todoApi.controller.task.toResponse
 import com.example.todoApi.todoApi.domain.*
 import com.example.todoApi.todoApi.usecase.TaskUseCase
@@ -37,5 +38,10 @@ class TaskController(private val useCase: TaskUseCase) {
         TaskId.fromString(id)
             .let{ useCase.delete(it) }
             .let { ResponseEntity(HttpStatus.NO_CONTENT) }
+
+    @GetMapping("/tasks")
+    fun findAllTasks(): ResponseEntity<TaskResponses> =
+        useCase.findAllWithSorted()
+            .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
 
 }

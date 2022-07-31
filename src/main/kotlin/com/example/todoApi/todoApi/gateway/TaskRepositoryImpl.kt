@@ -27,6 +27,12 @@ class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
         driver.delete(taskId.value)
             ?.let { taskId -> TaskId(taskId) }
             ?: throw RuntimeException("failed to delete task: $taskId")
+
+    override fun findAllWithSorted(orderKey: TaskOrderKey): Tasks =
+        driver.findAllWithSorted(orderKey)
+            .map { taskRecord -> taskRecord.toEntity() }
+            // TODO: Tasksにキャストする文法があったはず
+            .let { Tasks(it) }
 }
 
 data class TaskRecord(
@@ -48,7 +54,7 @@ fun Task.toRecord(createAt: LocalDateTime): TaskRecord = TaskRecord(
 )
 
 private fun adaptToRecordStatus(status: TaskStatus): Status =
-    when (status){
+    when (status) {
         TaskStatus.TODO -> Status.TODO
         TaskStatus.INPROGRESS -> Status.INPROGRESS
         TaskStatus.DONE -> Status.DONE

@@ -1,5 +1,6 @@
 package com.example.todoApi.todoApi.driver
 
+import com.example.todoApi.todoApi.domain.TaskOrderKey
 import com.example.todoApi.todoApi.driver.gen.Tables.TASKS
 import com.example.todoApi.todoApi.driver.gen.tables.records.TasksRecord
 import com.example.todoApi.todoApi.gateway.TaskRecord
@@ -38,6 +39,8 @@ class TaskDbDriver(private val dsl: DSLContext = DSL.using(DatabaseConfig().getC
             .returningResult(TASKS.TASK_ID)
             .fetchOne()
             ?.getValue(TASKS.TASK_ID)
+
+    fun findAllWithSorted(orderKey: TaskOrderKey): List<TaskRecord> = TODO()
 
 }
 
