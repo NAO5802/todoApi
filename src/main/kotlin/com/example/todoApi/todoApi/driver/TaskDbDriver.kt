@@ -6,8 +6,10 @@ import com.example.todoApi.todoApi.driver.gen.tables.records.TasksRecord
 import com.example.todoApi.todoApi.gateway.TaskRecord
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
+import org.jooq.SortField
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
+import java.sql.Timestamp
 import java.util.*
 
 
@@ -40,7 +42,16 @@ class TaskDbDriver(private val dsl: DSLContext = DSL.using(DatabaseConfig().getC
             .fetchOne()
             ?.getValue(TASKS.TASK_ID)
 
-    fun findAllWithSorted(orderKey: TaskOrderKey): List<TaskRecord> = TODO()
+    fun findAllWithSorted(orderKey: TaskOrderKey): List<TaskRecord> =
+        dsl.selectFrom(TASKS)
+            .orderBy(getTaskSortField(orderKey))
+            .fetch()
+            .map { it.toTaskRecord() }
+
+    private fun getTaskSortField(orderKey: TaskOrderKey): SortField<Timestamp> =
+        when(orderKey){
+            TaskOrderKey.CREATED_AT -> TASKS.CREATED_AT.desc()
+        }
 
 }
 

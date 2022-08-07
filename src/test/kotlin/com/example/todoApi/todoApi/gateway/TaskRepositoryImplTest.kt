@@ -2,15 +2,14 @@ package com.example.todoApi.todoApi.gateway
 
 import com.example.todoApi.todoApi.TaskTestDataCreator
 import com.example.todoApi.todoApi.TaskTestFactory
-import com.example.todoApi.todoApi.domain.TaskId
-import com.example.todoApi.todoApi.domain.TaskName
-import com.example.todoApi.todoApi.domain.TaskRepository
+import com.example.todoApi.todoApi.domain.*
 import com.example.todoApi.todoApi.driver.TaskDbDriver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.jdbc.Sql
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -83,6 +82,32 @@ internal class TaskRepositoryImplTest(
 
         assertEquals(taskId, actual, "削除したTaskIdが返ること")
         assertEquals(null, foundTaskRecord, "削除したtaskがDBに存在しないこと")
+
+    }
+
+    @Test
+    fun `findAllWithSorted - DBに存在する全てのタスクを、作成時間降順で返す`(){
+        // given
+        val taskId1 = taskTestDataCreator.create(TaskTestFactory.create())
+        val taskId2 = taskTestDataCreator.create(TaskTestFactory.create())
+        val taskId3 = taskTestDataCreator.create(TaskTestFactory.create())
+
+        // when
+        val actual = repository.findAllWithSorted(TaskOrderKey.CREATED_AT)
+
+        // then
+        assertEquals(taskId3, actual.list[0].id)
+        assertEquals(taskId2, actual.list[1].id)
+        assertEquals(taskId1, actual.list[2].id)
+    }
+
+    @Test
+    @Sql("../sql/delete_all_tasks.sql")
+    fun `findAllWithSorted - DBにタスクが存在しない時は、空のリストを返す`(){
+        // TODO: 他にtaskがない状態にする
+        val actual = repository.findAllWithSorted(TaskOrderKey.CREATED_AT)
+
+        assertEquals(emptyList<Task>(), actual.list)
 
     }
 
