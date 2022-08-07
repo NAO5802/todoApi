@@ -4,6 +4,8 @@ import com.example.todoApi.todoApi.TaskTestDataCreator
 import com.example.todoApi.todoApi.TaskTestFactory
 import com.example.todoApi.todoApi.controller.task.TaskRequest
 import com.example.todoApi.todoApi.controller.task.TaskResponse
+import com.example.todoApi.todoApi.controller.task.TaskResponses
+import com.example.todoApi.todoApi.domain.TaskName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -136,9 +138,30 @@ internal class TaskControllerTest(
     @Nested
     inner class FindAllTasks(){
         @Test
-        fun `全てのtaskが作成時間降順で取得できる`(){}
+        fun `全てのtaskが作成時間降順で取得できる`(){
+            // TODO: taskがない状態にする
+            // given
+            val taskId1 = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("１番目に作成")))
+            val taskId2 = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("２番目に作成")))
+            val taskId3 = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("３番目に作成")))
+
+            // when
+            val actual = restTemplate.getForEntity<TaskResponses>("/tasks")
+
+            // then
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(actual.body?.list?.get(0)?.id).isEqualTo(taskId3.value)
+            assertThat(actual.body?.list?.get(1)?.id).isEqualTo(taskId2.value)
+            assertThat(actual.body?.list?.get(2)?.id).isEqualTo(taskId1.value)
+        }
 
         @Test
-        fun `taskが1件もない場合、空の配列が返る`(){}
+        fun `taskが1件もない場合、空の配列が返る`(){
+            // TODO: taskがない状態にする
+            val actual = restTemplate.getForEntity<TaskResponses>("/tasks")
+
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(actual.body?.list).isEqualTo(emptyList<TaskResponse>())
+        }
     }
 }
