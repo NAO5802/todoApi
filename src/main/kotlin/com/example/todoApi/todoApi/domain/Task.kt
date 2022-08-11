@@ -24,7 +24,6 @@ data class Task private constructor(
     }
 }
 
-// TODO: FCC
 data class Tasks(val list: List<Task>)
 
 data class TaskId(val value: UUID) {

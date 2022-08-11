@@ -18,7 +18,6 @@ data class TaskResponse(
     val createdBy: String
 )
 
-// TODO: FCCのinterface作る
 data class TaskResponses(val list: List<TaskResponse>)
 
 fun Task.toResponse(): TaskResponse = TaskResponse(
@@ -29,4 +28,6 @@ fun Task.toResponse(): TaskResponse = TaskResponse(
     createdBy.value
 )
 
-fun Tasks.toResponse(): TaskResponses = TODO()
+fun Tasks.toResponse(): TaskResponses =
+    list.map { it.toResponse() }
+        .let(::TaskResponses)

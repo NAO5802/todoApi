@@ -21,7 +21,6 @@ import org.springframework.test.context.jdbc.Sql
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional
 internal class TaskControllerTest(
     @Autowired val restTemplate: TestRestTemplate,
     @Autowired val taskTestDataCreator: TaskTestDataCreator
@@ -152,9 +151,9 @@ internal class TaskControllerTest(
 
             // then
             assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
-            assertThat(actual.body?.list?.get(0)?.id).isEqualTo(taskId3.value)
-            assertThat(actual.body?.list?.get(1)?.id).isEqualTo(taskId2.value)
-            assertThat(actual.body?.list?.get(2)?.id).isEqualTo(taskId1.value)
+            assertThat(actual.body?.list?.get(0)?.id).isEqualTo(taskId3.value.toString())
+            assertThat(actual.body?.list?.get(1)?.id).isEqualTo(taskId2.value.toString())
+            assertThat(actual.body?.list?.get(2)?.id).isEqualTo(taskId1.value.toString())
         }
 
         @Test
