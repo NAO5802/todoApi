@@ -102,9 +102,8 @@ internal class TaskRepositoryImplTest(
     }
 
     @Test
-    @Sql("../sql/delete_all_tasks.sql")
+    @Sql("/sql/delete_all_tasks.sql")
     fun `findAllWithSorted - DBにタスクが存在しない時は、空のリストを返す`(){
-        // TODO: 他にtaskがない状態にする
         val actual = repository.findAllWithSorted(TaskOrderKey.CREATED_AT)
 
         assertEquals(emptyList<Task>(), actual.list)

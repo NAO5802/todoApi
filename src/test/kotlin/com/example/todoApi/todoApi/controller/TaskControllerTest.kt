@@ -17,8 +17,11 @@ import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
 internal class TaskControllerTest(
     @Autowired val restTemplate: TestRestTemplate,
     @Autowired val taskTestDataCreator: TaskTestDataCreator
@@ -139,7 +142,6 @@ internal class TaskControllerTest(
     inner class FindAllTasks(){
         @Test
         fun `全てのtaskが作成時間降順で取得できる`(){
-            // TODO: taskがない状態にする
             // given
             val taskId1 = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("１番目に作成")))
             val taskId2 = taskTestDataCreator.create(TaskTestFactory.create(name = TaskName("２番目に作成")))
@@ -156,8 +158,8 @@ internal class TaskControllerTest(
         }
 
         @Test
+        @Sql("/sql/delete_all_tasks.sql")
         fun `taskが1件もない場合、空の配列が返る`(){
-            // TODO: taskがない状態にする
             val actual = restTemplate.getForEntity<TaskResponses>("/tasks")
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
