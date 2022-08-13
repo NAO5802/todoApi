@@ -15,28 +15,17 @@ class TaskController(private val useCase: TaskUseCase) {
 
     @PostMapping("/tasks")
     fun postTask(@RequestBody taskPostRequest: TaskPostRequest): ResponseEntity<TaskResponse> =
-        // TODO: 生成をUsecaseにさせる
-        Task.create(
-            TaskName(taskPostRequest.name),
-            TaskStatus.fromString(taskPostRequest.status),
-            taskPostRequest.description?.let { TaskDescription(it) },
-            AdminUserName(taskPostRequest.createdBy)
-        )
-            .let { useCase.create(it) }
+        useCase.create(taskPostRequest.name, taskPostRequest.status, taskPostRequest.description, taskPostRequest.createdBy)
             .let { ResponseEntity(it.toResponse(), HttpStatus.CREATED) }
 
     @GetMapping("/tasks/{id}")
     fun findTask(@PathVariable id: String): ResponseEntity<TaskResponse> =
-        // TODO: 生成をUsecaseにさせる
-        TaskId.fromString(id)
-            .let { useCase.find(it) }
+        useCase.find(id)
             .let { ResponseEntity(it.toResponse(), HttpStatus.OK) }
 
     @DeleteMapping("/tasks/{id}")
     fun deleteTask(@PathVariable id: String): ResponseEntity<Unit> =
-        // TODO: 生成をUsecaseにさせる
-        TaskId.fromString(id)
-            .let { useCase.delete(it) }
+         useCase.delete(id)
             .let { ResponseEntity(HttpStatus.NO_CONTENT) }
 
     @GetMapping("/tasks")
