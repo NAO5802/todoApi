@@ -2,9 +2,11 @@ package com.example.todoApi.todoApi.controller
 
 import com.example.todoApi.todoApi.TaskTestDataCreator
 import com.example.todoApi.todoApi.TaskTestFactory
-import com.example.todoApi.todoApi.controller.task.TaskRequest
+import com.example.todoApi.todoApi.controller.task.TaskPostRequest
 import com.example.todoApi.todoApi.controller.task.TaskResponse
 import com.example.todoApi.todoApi.controller.task.TaskResponses
+import com.example.todoApi.todoApi.controller.task.TaskUpdateRequest
+import com.example.todoApi.todoApi.domain.AdminUserName
 import com.example.todoApi.todoApi.domain.TaskName
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -15,10 +17,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.client.postForEntity
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.jdbc.Sql
-import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 internal class TaskControllerTest(
@@ -39,7 +41,7 @@ internal class TaskControllerTest(
 
         @Test
         fun `postTask - 新規タスクを作成できること(全ての項目あり)`() {
-            val request = TaskRequest("買い出し", "TODO", "豚肉200g", "花子")
+            val request = TaskPostRequest("買い出し", "TODO", "豚肉200g", "花子")
             val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.CREATED)
@@ -52,7 +54,7 @@ internal class TaskControllerTest(
 
         @Test
         fun `postTask - 新規タスクを作成できること(説明文なし)`() {
-            val request = TaskRequest("買い出し", "TODO", null, "花子")
+            val request = TaskPostRequest("買い出し", "TODO", null, "花子")
             val actual = restTemplate.postForEntity<TaskResponse>("/tasks", request)
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.CREATED)
@@ -65,7 +67,7 @@ internal class TaskControllerTest(
 
         @Test
         fun `postTask - リクエストの値が不正な場合、400エラーを返す`() {
-            val request = TaskRequest("", "AAAAAA", null, "")
+            val request = TaskPostRequest("", "AAAAAA", null, "")
             val actual = restTemplate.postForEntity<ErrorResponse>("/tasks", request)
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -124,14 +126,14 @@ internal class TaskControllerTest(
 
         @Test
         fun `deleteTask - 指定したIDの形式が不正の場合、400エラーを返す`() {
-            val actual = restTemplate.exchange<Unit>("/tasks/1234567", HttpMethod.DELETE)
+            val actual = restTemplate.exchange<ErrorResponse>("/tasks/1234567", HttpMethod.DELETE)
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
 
         @Test
         fun `deleteTask - 指定したIDが存在しない場合、404エラーを返す`() {
-            val actual = restTemplate.exchange<Unit>("/tasks/95ec62c1-ac8a-4888-bfeb-059f0d648ef6", HttpMethod.DELETE)
+            val actual = restTemplate.exchange<ErrorResponse>("/tasks/95ec62c1-ac8a-4888-bfeb-059f0d648ef6", HttpMethod.DELETE)
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
@@ -163,6 +165,60 @@ internal class TaskControllerTest(
 
             assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(actual.body?.list).isEqualTo(emptyList<TaskResponse>())
+        }
+    }
+
+    @Nested
+    inner class PutTaskTest(){
+        @Test
+        fun `updateTask - 指定したIDのタスクが更新できること`(){
+            // given
+            val taskId = taskTestDataCreator.create(TaskTestFactory.create(createdBy = AdminUserName("佐藤")))
+
+            // when
+            val request = TaskUpdateRequest("タスク名を更新", "INPROGRESS", "進行中です")
+            val actual = restTemplate.exchange<TaskResponse>("/tasks/${taskId.value}", HttpMethod.PUT, HttpEntity(request))
+
+            // then
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.OK)
+            assertThat(actual.body?.id).isEqualTo(taskId.value.toString())
+            assertThat(actual.body?.name).isEqualTo("タスク名を更新")
+            assertThat(actual.body?.status).isEqualTo("INPROGRESS")
+            assertThat(actual.body?.description).isEqualTo("進行中です")
+            assertThat(actual.body?.createdBy).isEqualTo("佐藤")
+        }
+
+        @Test
+        fun `updateTask - リクエストの値が不正な場合、400エラーを返す`(){
+            // given
+            val taskId = taskTestDataCreator.create(TaskTestFactory.create())
+
+            // when
+            val request = TaskUpdateRequest("", "AAAAA", null)
+            val actual = restTemplate.exchange<ErrorResponse>("/tasks/${taskId.value}", HttpMethod.PUT, HttpEntity(request))
+
+            // then
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
+        fun `updateTask - 指定したIDの形式が不正の場合、400エラーを返す`(){
+            // when
+            val request = TaskUpdateRequest("タスク名を更新", "INPROGRESS", "進行中です")
+            val actual = restTemplate.exchange<ErrorResponse>("/tasks/123456", HttpMethod.PUT, HttpEntity(request))
+
+            // then
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
+
+        @Test
+        fun `updateTask - 指定したIDが存在しない場合、404エラーを返す`(){
+            // when
+            val request = TaskUpdateRequest("タスク名を更新", "INPROGRESS", "進行中です")
+            val actual = restTemplate.exchange<ErrorResponse>("/tasks/10487624-77cd-4088-9a65-27bc0510f3c6", HttpMethod.PUT, HttpEntity(request))
+
+            // then
+            assertThat(actual.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
         }
     }
 }

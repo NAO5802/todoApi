@@ -4,6 +4,7 @@ import com.example.todoApi.todoApi.domain.TaskOrderKey
 import com.example.todoApi.todoApi.driver.gen.Tables.TASKS
 import com.example.todoApi.todoApi.driver.gen.tables.records.TasksRecord
 import com.example.todoApi.todoApi.gateway.TaskRecord
+import com.example.todoApi.todoApi.gateway.TaskUpdateRecord
 import org.jooq.DSLContext
 import org.jooq.SQLDialect
 import org.jooq.SortField
@@ -47,6 +48,17 @@ class TaskDbDriver(private val dsl: DSLContext = DSL.using(DatabaseConfig().getC
             .orderBy(getTaskSortField(orderKey))
             .fetch()
             .map { it.toTaskRecord() }
+
+    fun update(record: TaskUpdateRecord): UUID? =
+        dsl.update(TASKS)
+            .set(TASKS.NAME, record.name)
+            .set(TASKS.STATUS, record.status)
+            .set(TASKS.DISCRIPTION, record.description)
+            .where(TASKS.TASK_ID.eq(record.id))
+            .returningResult(TASKS.TASK_ID)
+            .fetchOne()
+            ?.getValue(TASKS.TASK_ID)
+
 
     private fun getTaskSortField(orderKey: TaskOrderKey): SortField<Timestamp> =
         when(orderKey){

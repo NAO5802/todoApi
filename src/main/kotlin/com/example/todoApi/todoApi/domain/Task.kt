@@ -22,6 +22,9 @@ data class Task private constructor(
         fun create(name: TaskName, status: TaskStatus, description: TaskDescription?, createdBy: AdminUserName): Task =
             Task(TaskId.new(), name, status, description, createdBy)
     }
+
+    fun update(name: TaskName, status: TaskStatus, description: TaskDescription?): Task =
+        this.copy(name = name, status = status, description = description)
 }
 
 data class Tasks(val list: List<Task>)

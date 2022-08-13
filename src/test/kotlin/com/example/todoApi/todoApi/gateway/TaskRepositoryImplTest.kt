@@ -27,7 +27,7 @@ internal class TaskRepositoryImplTest(
     fun `create - 新規タスクレコードを作成し、TaskIdを返す`() {
         // given
         val task = TaskTestFactory.create()
-        val createAt = LocalDateTime.of(2022, 7, 24, 8,0)
+        val createAt = LocalDateTime.of(2022, 7, 24, 8, 0)
 
         // when
         val actual = repository.create(task, createAt)
@@ -70,7 +70,7 @@ internal class TaskRepositoryImplTest(
     }
 
     @Test
-    fun `delete - タスクIDに該当するデータをDBから削除し、TaskIdを返す`(){
+    fun `delete - タスクIDに該当するデータをDBから削除し、TaskIdを返す`() {
         // given
         val taskId = taskTestDataCreator.create(TaskTestFactory.create())
 
@@ -86,7 +86,7 @@ internal class TaskRepositoryImplTest(
     }
 
     @Test
-    fun `findAllWithSorted - DBに存在する全てのタスクを、作成時間降順で返す`(){
+    fun `findAllWithSorted - DBに存在する全てのタスクを、作成時間降順で返す`() {
         // given
         val taskId1 = taskTestDataCreator.create(TaskTestFactory.create())
         val taskId2 = taskTestDataCreator.create(TaskTestFactory.create())
@@ -103,11 +103,40 @@ internal class TaskRepositoryImplTest(
 
     @Test
     @Sql("/sql/delete_all_tasks.sql")
-    fun `findAllWithSorted - DBにタスクが存在しない時は、空のリストを返す`(){
+    fun `findAllWithSorted - DBにタスクが存在しない時は、空のリストを返す`() {
         val actual = repository.findAllWithSorted(TaskOrderKey.CREATED_AT)
 
         assertEquals(emptyList<Task>(), actual.list)
 
+    }
+
+    @Test
+    fun `update - タスクレコードを更新し、TaskIdを返す`() {
+        // given
+        val createAt = LocalDateTime.of(2022, 8, 13, 14, 0, 0)
+        val taskId = taskTestDataCreator.create(
+            TaskTestFactory.create(
+                name = TaskName("買い物"),
+                status = TaskStatus.TODO,
+                description = null,
+                createdBy = AdminUserName("太郎")
+            ),
+            createAt
+        )
+
+        // when
+        val updatedTask = Task.of(taskId, TaskName("スーパーで買い物"), TaskStatus.INPROGRESS, TaskDescription("卵を買う"), AdminUserName("太郎"))
+        val actual = repository.update(updatedTask)
+
+        // then
+        val foundTaskRecord = driver.findById(actual.value)
+        assertEquals(updatedTask.id, actual, "update()の戻り値がTaskIdであること")
+        assertEquals(updatedTask.id.value, foundTaskRecord?.id, "update()で作成した内容がDBに存在すること")
+        assertEquals(updatedTask.name.value, foundTaskRecord?.name, "update()で作成した内容がDBに存在すること")
+        assertEquals(updatedTask.status.name, foundTaskRecord?.status?.name, "update()で作成した内容がDBに存在すること")
+        assertEquals(updatedTask.description?.value, foundTaskRecord?.description, "update()で作成した内容がDBに存在すること")
+        assertEquals(updatedTask.createdBy.value, foundTaskRecord?.createdBy, "update()で作成した内容がDBに存在すること")
+        assertEquals(Timestamp.valueOf(createAt), foundTaskRecord?.createdAt, "update()で作成した内容がDBに存在すること")
     }
 
 }

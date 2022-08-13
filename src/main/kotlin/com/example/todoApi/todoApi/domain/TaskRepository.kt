@@ -7,4 +7,5 @@ interface TaskRepository {
     fun findById(taskId: TaskId): Task
     fun delete(taskId: TaskId): TaskId
     fun findAllWithSorted(orderKey: TaskOrderKey = TaskOrderKey.CREATED_AT): Tasks
+    fun update(task: Task): TaskId
 }

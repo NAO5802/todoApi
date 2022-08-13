@@ -3,11 +3,17 @@ package com.example.todoApi.todoApi.controller.task
 import com.example.todoApi.todoApi.domain.Task
 import com.example.todoApi.todoApi.domain.Tasks
 
-data class TaskRequest(
+data class TaskPostRequest(
     val name: String,
     val status: String,
     val description: String?,
     val createdBy: String
+)
+
+data class TaskUpdateRequest(
+    val name: String,
+    val status: String,
+    val description: String?,
 )
 
 data class TaskResponse(

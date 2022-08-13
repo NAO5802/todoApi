@@ -31,6 +31,13 @@ class TaskRepositoryImpl(val driver: TaskDbDriver) : TaskRepository {
         driver.findAllWithSorted(orderKey)
             .map { taskRecord -> taskRecord.toEntity() }
             .let(::Tasks)
+
+    override fun update(task: Task): TaskId =
+        task.toUpdateRecord()
+            .let { driver.update(it) }
+            ?.let { taskId -> TaskId(taskId) }
+            ?: throw RuntimeException("failed to update task: $task")
+
 }
 
 data class TaskRecord(
@@ -42,14 +49,30 @@ data class TaskRecord(
     val createdAt: Timestamp
 )
 
-fun Task.toRecord(createAt: LocalDateTime): TaskRecord = TaskRecord(
-    id.value,
-    name.value,
-    adaptToRecordStatus(status),
-    description?.value,
-    createdBy.value,
-    Timestamp.valueOf(createAt)
+data class TaskUpdateRecord(
+    val id: UUID,
+    val name: String,
+    val status: Status,
+    val description: String?
 )
+
+fun Task.toRecord(createAt: LocalDateTime): TaskRecord =
+    TaskRecord(
+        id.value,
+        name.value,
+        adaptToRecordStatus(status),
+        description?.value,
+        createdBy.value,
+        Timestamp.valueOf(createAt)
+    )
+
+fun Task.toUpdateRecord(): TaskUpdateRecord =
+    TaskUpdateRecord(
+        id.value,
+        name.value,
+        adaptToRecordStatus(status),
+        description?.value
+    )
 
 private fun adaptToRecordStatus(status: TaskStatus): Status =
     when (status) {
@@ -57,7 +80,6 @@ private fun adaptToRecordStatus(status: TaskStatus): Status =
         TaskStatus.INPROGRESS -> Status.INPROGRESS
         TaskStatus.DONE -> Status.DONE
     }
-
 
 fun TaskRecord.toEntity(): Task =
     Task.of(
